@@ -5235,6 +5235,19 @@ async function checkout() {
   const payLabel = selectedPayment === 'livraison' ? 'Paiement à la livraison' : 'SenePay (Wave / Orange Money)';
 
   // ============================================================
+  // � CRÉER LA COMMANDE D'ABORD (nécessaire pour traçabilité)
+  // ============================================================
+  console.log('📦 Création de la commande...');
+  const orderId = await _saveOrderToServer(ref, addr, total, subtotal, commission);
+  
+  if (!orderId) {
+    toast('❌ Erreur: Impossible de créer la commande');
+    return;
+  }
+  
+  console.log('✅ Commande créée avec ID:', orderId);
+
+  // ============================================================
   // 🚀 LOGIQUE SENEPAY — avec vrai fallback si échec
   // ============================================================
   if (selectedPayment === 'senepay') {
@@ -5247,11 +5260,12 @@ async function checkout() {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          amount: Math.round(total), // ✅ integer strict
+          amount: Math.round(total),
           orderReference: ref,
           customerName: currentUser.name,
-          customerPhone: (currentUser.phone || '').replace(/[^0-9]/g, ''), // ✅ Nettoyage téléphone (chiffres uniquement)
-          returnUrl: window.location.href
+          customerPhone: (currentUser.phone || '').replace(/[^0-9]/g, ''),
+          returnUrl: window.location.href,
+          orderId: orderId // ✅ NOUVEAU: Passer l'ID de la commande
         })
       });
 
@@ -5259,7 +5273,6 @@ async function checkout() {
       checkoutBtn.textContent = '✅ Commander · 📲 Payer via SenePay';
 
       if (!res.ok) {
-        // ✅ Lire le message d'erreur réel du serveur
         let errData = {};
         try { errData = await res.json(); } catch(_) {}
         const msg = errData.message || `Erreur HTTP ${res.status}`;
@@ -5270,8 +5283,6 @@ async function checkout() {
       }
 
       const data = await res.json();
-
-      // ✅ Accepter redirectUrl, checkoutUrl, ou paymentUrl du serveur
       const redirectUrl = data.redirectUrl || data.checkoutUrl || data.paymentUrl;
 
       if (data.success && redirectUrl) {
@@ -5283,9 +5294,8 @@ async function checkout() {
           return;
         }
 
-        // ✅ Sauvegarder la commande AVANT de rediriger (sinon perdue)
+        // ✅ Sauvegarder la commande localement
         _saveOrderLocally(ref, addr, total, subtotal, commission);
-        _saveOrderToServer(ref, addr, total);
 
         // Afficher tout de suite l'option manuelle, puis tenter la redirection auto.
         showPaymentRedirectFallback(targetUrl, true);
@@ -5313,7 +5323,6 @@ async function checkout() {
       checkoutBtn.textContent = '✅ Commander · 📲 Payer via SenePay';
       console.error('SenePay fetch error:', e);
       
-      // ✅ FIX: Si le serveur Node.js n'est pas démarré → message clair
       if (e instanceof TypeError && e.message.includes('fetch')) {
         toast('⚠️ Serveur Node.js non démarré. Lancez : node server.js');
       } else {
@@ -5330,26 +5339,46 @@ async function checkout() {
   _processOrder(ref, addr, total, subtotal, commission, payLabel);
 }
 
-// ✅ Sauvegarde commande côté serveur
-async function _saveOrderToServer(ref, addr, total) {
+// ✅ Sauvegarde commande côté serveur via nouvelle API
+async function _saveOrderToServer(ref, addr, total, subtotal, commission) {
   try {
-    await fetch(API_URL + '/orders', {
+    if (!currentUser) {
+      console.warn('Utilisateur non connecté, commande non créée sur serveur');
+      return null;
+    }
+
+    const response = await fetch(API_URL + '/orders/create', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        ref,
-        userId: currentUser.id || null,
-        clientName: currentUser.name,
-        total: fmtPrice(total),
-        status: 'pending',
-        date: new Date().toLocaleDateString('fr-FR'),
-        items: JSON.stringify(cart),
-        payment: selectedPayment,
-        address: addr
+        userId: currentUser.id,
+        items: cart.map(c => ({
+          id: c.id,
+          name: c.name,
+          price: c.price,
+          quantity: c.qty,
+          image: c.image
+        })),
+        totalAmount: Math.round(total),
+        address: addr || '',
+        paymentMethod: selectedPayment === 'livraison' ? 'delivery' : 'senepay',
+        customerName: currentUser.name,
+        customerPhone: (currentUser.phone || '').replace(/[^0-9]/g, ''),
+        orderRef: ref
       })
     });
+
+    if (!response.ok) {
+      console.warn('Erreur lors de la création de la commande:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log('✅ Commande créée sur serveur:', data);
+    return data.orderId;
   } catch(e) {
-    console.warn('Commande non sauvegardée sur serveur:', e);
+    console.error('Erreur lors de la sauvegarde de la commande serveur:', e);
+    return null;
   }
 }
 

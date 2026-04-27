@@ -453,12 +453,14 @@ app.post('/api/webhooks/senepay', async (req, res) => {
             return res.status(400).json({ error: 'Transaction ID manquant' });
         }
 
+        // Mettre à jour le paiement
         await db.collection('payments').doc(docId).update({
             status: status,
             webhookReceivedAt: new Date().toISOString(),
             senepayWebhook: body
         });
 
+        // Si paiement réussi → Mettre à jour la commande
         if (status && ['completed','Completed','complete','Complete','successful','success','paid'].includes(String(status))) {
             const paymentDoc = await db.collection('payments').doc(docId).get();
             if (paymentDoc.exists) {
@@ -466,9 +468,27 @@ app.post('/api/webhooks/senepay', async (req, res) => {
                 if (orderId) {
                     await db.collection('orders').doc(orderId).update({
                         paymentStatus: 'paid',
+                        status: 'confirmed', // Commande confirmée après paiement
                         paymentDate: new Date().toISOString(),
-                        transactionId: transactionId || docId
+                        transactionId: transactionId || docId,
+                        updatedAt: new Date().toISOString()
                     });
+                    console.log('✅ Commande confirmée après paiement SenePay:', orderId);
+                }
+            }
+        }
+        // Si paiement échoué
+        else if (status && ['failed','Failed','cancelled','Cancelled','error','Error'].includes(String(status))) {
+            const paymentDoc = await db.collection('payments').doc(docId).get();
+            if (paymentDoc.exists) {
+                const { orderId } = paymentDoc.data();
+                if (orderId) {
+                    await db.collection('orders').doc(orderId).update({
+                        paymentStatus: 'failed',
+                        status: 'cancelled',
+                        updatedAt: new Date().toISOString()
+                    });
+                    console.log('❌ Commande annulée - Paiement échoué:', orderId);
                 }
             }
         }
@@ -687,6 +707,181 @@ app.post('/api/init/products', async (req, res) => {
     } catch (error) {
         console.error('Init error:', error.message);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// 📦 ORDERS MANAGEMENT ROUTES
+// ==========================================
+
+/**
+ * POST /api/orders/create
+ * Créer une nouvelle commande (Frontend)
+ */
+app.post('/api/orders/create', async (req, res) => {
+    try {
+        const { userId, items, totalAmount, address, paymentMethod, customerName, customerPhone } = req.body;
+
+        // Validations
+        if (!userId || !items || items.length === 0 || !totalAmount) {
+            return res.status(400).json({ error: 'Données de commande invalides' });
+        }
+
+        // Générer une référence unique
+        const orderRef = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+        // Créer le document commande
+        const orderData = {
+            orderRef: orderRef,
+            userId: userId,
+            items: items,
+            totalAmount: totalAmount,
+            address: address || '',
+            paymentMethod: paymentMethod || 'senepay', // 'senepay' ou 'delivery'
+            status: paymentMethod === 'delivery' ? 'pending_payment' : 'pending_payment',
+            paymentStatus: 'pending',
+            customerName: customerName || '',
+            customerPhone: customerPhone || '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            notes: ''
+        };
+
+        const orderId = await db.collection('orders').add(orderData);
+
+        console.log('✅ Commande créée:', orderRef, 'ID:', orderId.id);
+
+        res.json({
+            success: true,
+            orderId: orderId.id,
+            orderRef: orderRef,
+            totalAmount: totalAmount,
+            paymentMethod: paymentMethod
+        });
+    } catch (error) {
+        console.error('Order creation error:', error.message);
+        res.status(500).json({ error: 'Erreur lors de la création de la commande' });
+    }
+});
+
+/**
+ * GET /api/orders/:orderId
+ * Récupérer les détails d'une commande
+ */
+app.get('/api/orders/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        const orderDoc = await db.collection('orders').doc(orderId).get();
+        if (!orderDoc.exists) {
+            return res.status(404).json({ error: 'Commande non trouvée' });
+        }
+
+        res.json({
+            id: orderId,
+            ...orderDoc.data()
+        });
+    } catch (error) {
+        console.error('Get order error:', error.message);
+        res.status(500).json({ error: 'Erreur lors de la récupération de la commande' });
+    }
+});
+
+/**
+ * GET /api/orders/user/:userId
+ * Récupérer l'historique des commandes d'un utilisateur
+ */
+app.get('/api/orders/user/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const ordersSnapshot = await db.collection('orders')
+            .where('userId', '==', userId)
+            .limit(50)
+            .get();
+
+        const orders = [];
+        ordersSnapshot.forEach(doc => {
+            orders.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Trier par date en mémoire (client-side)
+        orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        res.json({ orders, total: orders.length });
+    } catch (error) {
+        console.error('Get user orders error:', error.message);
+        res.status(500).json({ error: 'Erreur lors de la récupération des commandes' });
+    }
+});
+
+/**
+ * GET /api/admin/orders
+ * Admin: Récupérer TOUTES les commandes
+ */
+app.get('/api/admin/orders', verifyFirebaseToken, async (req, res) => {
+    try {
+        // Vérifier que c'est un admin (optionnel - à améliorer)
+        const ordersSnapshot = await db.collection('orders')
+            .limit(100)
+            .get();
+
+        const orders = [];
+        ordersSnapshot.forEach(doc => {
+            orders.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Trier par date en mémoire
+        orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        res.json({ orders, total: orders.length });
+    } catch (error) {
+        console.error('Get all orders error:', error.message);
+        res.status(500).json({ error: 'Erreur lors de la récupération des commandes' });
+    }
+});
+
+/**
+ * PATCH /api/admin/orders/:orderId
+ * Admin: Mettre à jour le statut d'une commande
+ */
+app.patch('/api/admin/orders/:orderId', verifyFirebaseToken, async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status, notes } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ error: 'Statut requis' });
+        }
+
+        const updateData = {
+            status: status,
+            updatedAt: new Date().toISOString()
+        };
+
+        if (notes !== undefined) {
+            updateData.notes = notes;
+        }
+
+        await db.collection('orders').doc(orderId).update(updateData);
+
+        console.log('✅ Commande mise à jour:', orderId, 'Statut:', status);
+
+        res.json({
+            success: true,
+            message: 'Commande mise à jour',
+            orderId: orderId,
+            status: status
+        });
+    } catch (error) {
+        console.error('Update order error:', error.message);
+        res.status(500).json({ error: 'Erreur lors de la mise à jour de la commande' });
     }
 });
 
