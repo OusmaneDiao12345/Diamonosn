@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages - DiamanoSN</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #0d9488;
+      --green2: #115e59;
+      --gray: #64748b;
+      --gray3: #cbd5e1;
+      --gray4: #e2e8f0;
+      --gray5: #f8fafc;
+      --dark: #0f172a;
+      --dark2: #1e293b;
+      --r: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray5);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gray4);
+      color: var(--dark);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 30px;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { background: var(--gray3); }
+    .header {
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color: white;
+      padding: 40px 20px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      background: white;
+      padding: 16px;
+      border-radius: var(--r);
+      border: 2px solid var(--gray4);
+    }
+    .tab-btn {
+      background: var(--gray4);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      color: var(--dark);
+    }
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--green);
+      color: white;
+    }
+    .content {
+      background: white;
+      padding: 30px;
+      border-radius: var(--r);
+      border: 2px solid var(--gray4);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    h2 { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; margin: 30px 0 20px; }
+    h2:first-child { margin-top: 0; }
+    h3 { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; margin: 20px 0 12px; }
+    p { margin-bottom: 16px; color: var(--gray); }
+    ul, ol { margin: 16px 0 16px 20px; color: var(--gray); }
+    li { margin-bottom: 12px; }
+    strong { color: var(--dark); font-weight: 700; }
+    .highlight { background: #fef3c7; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+    .info-box { background: var(--gray5); padding: 16px; border-radius: 8px; border-left: 4px solid var(--green); margin: 20px 0; }
+    @media (max-width: 768px) {
+      .tabs { flex-direction: column; }
+      .tab-btn { width: 100%; }
+      .content { padding: 20px; }
+      h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-btn" onclick="window.history.back()">← Retour</button>
+    
+    <div class="header">
+      <h1>ℹ️ Informations</h1>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('about')">📌 À Propos</button>
+      <button class="tab-btn" onclick="switchTab('faq')">❓ FAQ</button>
+      <button class="tab-btn" onclick="switchTab('terms')">📋 CGU</button>
+      <button class="tab-btn" onclick="switchTab('privacy')">🔒 Confidentialité</button>
+    </div>
+
+    <div class="content">
+      <!-- À PROPOS -->
+      <div id="about" class="tab-content active">
+        <h2>📌 À Propos de DiamanoSN</h2>
+        <p>DiamanoSN est la plateforme e-commerce leader au Sénégal, offrant une large gamme de produits de qualité à des prix compétitifs.</p>
+        
+        <h3>Notre Mission</h3>
+        <p>Rendre le shopping en ligne accessible, sécurisé et agréable pour tous les Sénégalais.</p>
+        
+        <h3>Nos Valeurs</h3>
+        <ul>
+          <li><strong>Qualité:</strong> Tous nos produits sont sélectionnés avec soin</li>
+          <li><strong>Confiance:</strong> Transactions sécurisées et transparentes</li>
+          <li><strong>Rapidité:</strong> Livraison dans les meilleurs délais</li>
+          <li><strong>Service:</strong> Équipe support réactive et professionnelle</li>
+        </ul>
+
+        <h3>Pourquoi DiamanoSN?</h3>
+        <ul>
+          <li>✅ Paiement sécurisé avec SenePay</li>
+          <li>✅ Livraison gratuite à partir de 100 000 FCFA</li>
+          <li>✅ Retours faciles sous 30 jours</li>
+          <li>✅ Support client 7j/7</li>
+          <li>✅ Produits authentiques garantis</li>
+        </ul>
+
+        <div class="info-box">
+          <strong>📞 Contactez-nous:</strong><br>
+          Email: contact@diamanosn.com<br>
+          Téléphone: +221 77 XXX XXXX<br>
+          Dakar, Sénégal
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div id="faq" class="tab-content">
+        <h2>❓ Questions Fréquemment Posées</h2>
+        
+        <h3>Comment passer une commande?</h3>
+        <p>1. Créez un compte DiamanoSN<br>
+        2. Ajoutez des produits à votre panier<br>
+        3. Procédez au paiement sécurisé<br>
+        4. Recevez votre commande à domicile</p>
+
+        <h3>Quels sont les modes de paiement?</h3>
+        <p>Nous acceptons les paiements via SenePay (Carte bancaire, Mobile Money, Virement).</p>
+
+        <h3>Quel délai de livraison?</h3>
+        <p>Les commandes sont généralement livrées dans un délai de 2 à 5 jours ouvrables selon votre localisation.</p>
+
+        <h3>Quels sont les frais de livraison?</h3>
+        <p>Les frais de livraison sont de 2 000 FCFA. La livraison est gratuite pour les commandes de 100 000 FCFA et plus.</p>
+
+        <h3>Puis-je retourner un produit?</h3>
+        <p>Oui, vous avez 30 jours pour retourner un produit non ouvert et en parfait état. Contactez notre support pour initier une demande de retour.</p>
+
+        <h3>Comment suivre ma commande?</h3>
+        <p>Vous pouvez suivre votre commande en temps réel depuis votre compte "Mes Commandes" ou via le lien de suivi envoyé par email.</p>
+
+        <h3>Que faire en cas de problème?</h3>
+        <p>Contactez notre équipe support via le formulaire de contact ou par email. Nous répondons dans les 24h.</p>
+
+        <h3>Les produits sont-ils authentiques?</h3>
+        <p>100% de nos produits sont authentiques. Nous garantissons la qualité de chaque article vendu.</p>
+      </div>
+
+      <!-- CGU -->
+      <div id="terms" class="tab-content">
+        <h2>📋 Conditions Générales d'Utilisation</h2>
+        
+        <h3>1. Acceptation des CGU</h3>
+        <p>En utilisant le site DiamanoSN, vous acceptez les présentes conditions générales d'utilisation.</p>
+
+        <h3>2. Accès au Service</h3>
+        <p>L'accès à la plateforme DiamanoSN est réservé aux personnes âgées de 18 ans ou plus. Vous êtes responsable de maintenir la confidentialité de vos identifiants de connexion.</p>
+
+        <h3>3. Responsabilité des Utilisateurs</h3>
+        <p>Vous vous engagez à utiliser le site uniquement pour des fins légales et à ne pas:</p>
+        <ul>
+          <li>Introduire de malveillants ou de virus</li>
+          <li>Violer les droits de propriété intellectuelle</li>
+          <li>Transmettre du contenu offensant ou illégal</li>
+          <li>Usurper l'identité d'une autre personne</li>
+        </ul>
+
+        <h3>4. Produits et Prix</h3>
+        <p>Les prix indiqués sur le site sont en francs CFA et incluent la TVA. Nous nous réservons le droit de modifier les prix à tout moment. Les modifications prennent effet immédiatement.</p>
+
+        <h3>5. Disponibilité des Produits</h3>
+        <p>Bien que nous nous efforcions de maintenir un inventaire précis, les produits peuvent être indisponibles. En cas d'indisponibilité, nous vous contacterons et vous proposerons des alternatives.</p>
+
+        <h3>6. Livraison</h3>
+        <p>Les livraisons sont effectuées au sein de la région de Dakar et zones principales du Sénégal. Les délais de livraison sont donnés à titre indicatif.</p>
+
+        <h3>7. Limitation de Responsabilité</h3>
+        <p>DiamanoSN décline toute responsabilité pour les dommages indirects ou consécutifs résultant de l'utilisation du site ou des produits.</p>
+
+        <h3>8. Modifications des CGU</h3>
+        <p>Nous nous réservons le droit de modifier les CGU à tout moment. Les modifications sont effectives immédiatement après leur publication.</p>
+      </div>
+
+      <!-- PRIVACY -->
+      <div id="privacy" class="tab-content">
+        <h2>🔒 Politique de Confidentialité</h2>
+        
+        <h3>1. Collecte de Données</h3>
+        <p>DiamanoSN collecte les informations suivantes:</p>
+        <ul>
+          <li>Nom, prénom, email, téléphone</li>
+          <li>Adresse de livraison</li>
+          <li>Historique d'achat et préférences</li>
+          <li>Données de navigation (cookies)</li>
+        </ul>
+
+        <h3>2. Utilisation des Données</h3>
+        <p>Vos données sont utilisées pour:</p>
+        <ul>
+          <li>Traiter votre commande</li>
+          <li>Vous envoyer des confirmations et notifications</li>
+          <li>Améliorer notre service</li>
+          <li>Vous proposer des offres personnalisées</li>
+          <li>Respecter nos obligations légales</li>
+        </ul>
+
+        <h3>3. Protection des Données</h3>
+        <p>Vos données personnelles sont protégées par un chiffrement SSL 256 bits. Nous n'utilisons que des serveurs sécurisés et respectons les normes de protection des données.</p>
+
+        <h3>4. Partage des Données</h3>
+        <p>Vos données ne sont jamais vendues à des tiers. Elles peuvent être partagées avec:</p>
+        <ul>
+          <li>Nos partenaires de livraison (pour la livraison)</li>
+          <li>SenePay (pour le traitement des paiements)</li>
+          <li>Les autorités légales (si requis par la loi)</li>
+        </ul>
+
+        <h3>5. Cookies</h3>
+        <p>Nous utilisons des cookies pour améliorer votre expérience de navigation. Vous pouvez désactiver les cookies dans vos paramètres de navigateur.</p>
+
+        <h3>6. Vos Droits</h3>
+        <p>Vous avez le droit de:</p>
+        <ul>
+          <li>Accéder à vos données personnelles</li>
+          <li>Corriger des informations inexactes</li>
+          <li>Demander la suppression de vos données</li>
+          <li>Vous opposer au traitement de vos données</li>
+        </ul>
+
+        <h3>7. Contact</h3>
+        <p>Pour toute question concernant votre confidentialité, contactez-nous à: privacy@diamanosn.com</p>
+
+        <div class="highlight">
+          <strong>Dernière mise à jour:</strong> 27 avril 2026
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

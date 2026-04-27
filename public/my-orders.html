@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Commandes - DiamanoSN</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #0d9488;
+      --green2: #115e59;
+      --green3: #2dd4bf;
+      --orange: #f97316;
+      --red: #dc2626;
+      --dark: #0f172a;
+      --dark2: #1e293b;
+      --gray: #64748b;
+      --gray2: #94a3b8;
+      --gray3: #cbd5e1;
+      --gray4: #e2e8f0;
+      --gray5: #f8fafc;
+      --white: #ffffff;
+      --r: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray5);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color: white;
+      padding: 40px 20px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gray4);
+      color: var(--dark);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { background: var(--gray3); }
+    .orders-container {
+      display: grid;
+      gap: 16px;
+    }
+    .order-card {
+      background: white;
+      border: 2px solid var(--gray4);
+      border-radius: var(--r);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .order-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+    .order-ref {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--dark);
+    }
+    .order-date {
+      font-size: 13px;
+      color: var(--gray);
+    }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .status-pending { background: #fef3c7; color: #d97706; }
+    .status-confirmed { background: #dbeafe; color: #2563eb; }
+    .status-shipped { background: #e0e7ff; color: #4f46e5; }
+    .status-delivered { background: #dcfce7; color: #16a34a; }
+    .status-cancelled { background: #fee2e2; color: #dc2626; }
+    .order-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+      padding: 16px 0;
+      border-top: 1px solid var(--gray4);
+      border-bottom: 1px solid var(--gray4);
+    }
+    .order-info { font-size: 14px; }
+    .order-info-label { color: var(--gray); font-weight: 600; margin-bottom: 4px; }
+    .order-info-value { color: var(--dark); font-weight: 700; font-size: 16px; }
+    .order-items {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 4px;
+    }
+    .order-customer {
+      font-size: 14px;
+      color: var(--gray);
+    }
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--gray4);
+    }
+    .total-label {
+      color: var(--gray);
+      font-weight: 600;
+    }
+    .total-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--orange);
+    }
+    .track-btn {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .track-btn:hover { background: var(--green2); transform: translateY(-1px); }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+    }
+    .empty-icon { font-size: 64px; margin-bottom: 20px; opacity: 0.5; }
+    .empty-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+    .empty-sub { font-size: 16px; margin-bottom: 20px; }
+    .shop-btn {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .shop-btn:hover { background: var(--green2); }
+    .loading { text-align: center; padding: 40px; }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--gray3);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) {
+      .header h1 { font-size: 24px; }
+      .order-body { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-btn" onclick="window.history.back()">← Retour</button>
+    
+    <div class="header">
+      <h1>📦 Mes Commandes</h1>
+      <p>Suivi complet de vos achats</p>
+    </div>
+
+    <div id="ordersList" class="orders-container"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebaseapp/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebaseapp/10.7.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebaseapp/10.7.1/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyABH-6hzANRCGSn7Q-DxZl3kZc34AzB2kQ",
+      authDomain: "diamanosn-ea0a1.firebaseapp.com",
+      projectId: "diamanosn-ea0a1",
+      storageBucket: "diamanosn-ea0a1.appspot.com",
+      messagingSenderId: "539088256476",
+      appId: "1:539088256476:web:4cf2a2b5cf0eef5197e849"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    function fmtPrice(n) {
+      return n.toLocaleString('fr-SN', { style: 'currency', currency: 'XOF' }).replace('FCFA', '').trim();
+    }
+
+    function getStatusBadgeClass(status) {
+      const statusMap = {
+        'pending_payment': 'status-pending',
+        'confirmed': 'status-confirmed',
+        'shipped': 'status-shipped',
+        'delivered': 'status-delivered',
+        'cancelled': 'status-cancelled'
+      };
+      return statusMap[status] || 'status-pending';
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'pending_payment': '⏳ En attente de paiement',
+        'confirmed': '✅ Confirmée',
+        'shipped': '🚚 En cours de livraison',
+        'delivered': '📦 Livrée',
+        'cancelled': '❌ Annulée'
+      };
+      return labels[status] || status;
+    }
+
+    async function loadOrders() {
+      const container = document.getElementById('ordersList');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement de vos commandes...</p></div>';
+
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🔐</div>
+              <div class="empty-title">Connexion requise</div>
+              <div class="empty-sub">Connectez-vous pour voir vos commandes</div>
+              <button class="shop-btn" onclick="window.location.href='index.html'">← Retour à l'accueil</button>
+            </div>`;
+          return;
+        }
+
+        try {
+          const response = await fetch(`https://diamonobackend.onrender.com/api/orders/user/${user.uid}`, {
+            headers: { 'Authorization': `Bearer ${await user.getIdToken()}` }
+          });
+          const data = await response.json();
+          const orders = data.orders || [];
+
+          if (orders.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">🛒</div>
+                <div class="empty-title">Aucune commande</div>
+                <div class="empty-sub">Vous n'avez pas encore passé de commande</div>
+                <button class="shop-btn" onclick="window.location.href='index.html'">🛍️ Découvrir les produits</button>
+              </div>`;
+            return;
+          }
+
+          container.innerHTML = orders.map(order => {
+            const createdDate = new Date(order.createdAt).toLocaleDateString('fr-FR', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric'
+            });
+            const itemsText = order.items.length === 1 ? '1 article' : `${order.items.length} articles`;
+            return `
+              <div class="order-card" onclick="window.location.href='order-tracking.html?id=${order.id}'">
+                <div class="order-header">
+                  <div>
+                    <div class="order-ref">${order.orderRef}</div>
+                    <div class="order-date">${createdDate}</div>
+                  </div>
+                  <span class="status-badge ${getStatusBadgeClass(order.status)}">${getStatusLabel(order.status)}</span>
+                </div>
+                <div class="order-body">
+                  <div>
+                    <div class="order-info-label">📦 Articles</div>
+                    <div class="order-items">${itemsText}</div>
+                  </div>
+                  <div>
+                    <div class="order-info-label">👤 Adresse</div>
+                    <div class="order-customer">${order.address}</div>
+                  </div>
+                </div>
+                <div class="order-total">
+                  <span class="total-label">Montant total:</span>
+                  <span class="total-amount">${fmtPrice(order.totalAmount)}</span>
+                </div>
+              </div>`;
+          }).join('');
+        } catch (error) {
+          console.error('Erreur:', error);
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">⚠️</div>
+              <div class="empty-title">Erreur de chargement</div>
+              <div class="empty-sub">Une erreur s'est produite. Veuillez réessayer.</div>
+              <button class="shop-btn" onclick="location.reload()">↻ Réessayer</button>
+            </div>`;
+        }
+      });
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

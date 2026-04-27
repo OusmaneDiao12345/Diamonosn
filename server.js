@@ -886,6 +886,64 @@ app.patch('/api/admin/orders/:orderId', verifyFirebaseToken, async (req, res) =>
 });
 
 // ==========================================
+// 📧 CONTACT FORM ROUTE
+// ==========================================
+
+/**
+ * POST /api/contact
+ * Enregistrer un message de contact
+ */
+app.post('/api/contact', async (req, res) => {
+    try {
+        const { name, email, phone, subject, message } = req.body;
+
+        // Validations
+        if (!name || !email || !subject || !message) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Nom, email, sujet et message sont requis' 
+            });
+        }
+
+        if (!email.includes('@')) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email invalide' 
+            });
+        }
+
+        // Sauvegarder le message dans Firestore
+        const contactData = {
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone?.trim() || '',
+            subject: subject.trim(),
+            message: message.trim(),
+            createdAt: new Date().toISOString(),
+            status: 'new',
+            ip: req.ip || 'unknown'
+        };
+
+        const contactRef = await db.collection('contacts').add(contactData);
+
+        console.log('✅ Message de contact reçu:', contactRef.id, 'De:', email);
+
+        res.json({
+            success: true,
+            message: 'Merci pour votre message. Nous vous répondrons bientôt!',
+            contactId: contactRef.id,
+            receivedAt: contactData.createdAt
+        });
+    } catch (error) {
+        console.error('Contact form error:', error.message);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Erreur lors de l\'envoi du message'
+        });
+    }
+});
+
+// ==========================================
 // 🏥 HEALTH CHECK
 // ==========================================
 app.get('/api/health', (req, res) => {
