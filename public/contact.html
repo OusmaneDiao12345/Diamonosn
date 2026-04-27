@@ -223,7 +223,7 @@
       </div>
 
       <div class="contact-form">
-        <div id="message" class="message"></div>
+        <div id="statusMessage" class="message"></div>
         
         <form id="contactForm" onsubmit="submitForm(event)">
           <div class="form-group">
@@ -263,7 +263,7 @@
 
       const form = document.getElementById('contactForm');
       const btn = document.getElementById('submitBtn');
-      const msgDiv = document.getElementById('message');
+      const msgDiv = document.getElementById('statusMessage');
 
       btn.disabled = true;
       btn.textContent = '⏳ Envoi...';
