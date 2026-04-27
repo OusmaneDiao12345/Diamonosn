@@ -893,6 +893,10 @@ app.patch('/api/admin/orders/:orderId', verifyFirebaseToken, async (req, res) =>
  * POST /api/contact
  * Enregistrer un message de contact
  */
+app.get('/api/test-contact', (req, res) => {
+    res.json({ message: 'Contact endpoint is loaded!', timestamp: new Date().toISOString() });
+});
+
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, phone, subject, message } = req.body;
