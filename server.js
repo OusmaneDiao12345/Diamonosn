@@ -1235,4 +1235,59 @@ app.listen(PORT, () => {
     `);
 });
 
+// ==========================================
+// 📧 NEWSLETTER - SEND BULK EMAIL
+// ==========================================
+app.post('/api/newsletter/send-bulk', async (req, res) => {
+    try {
+        const { subject, message } = req.body;
+
+        if (!subject || !message) {
+            return res.status(400).json({ success: false, error: 'Subject et message requis' });
+        }
+
+        // Récupérer tous les abonnés
+        const subscribersSnap = await db.collection('newsletter_subscribers').get();
+        let sentCount = 0;
+        let failedCount = 0;
+
+        for (const doc of subscribersSnap.docs) {
+            const subscriber = doc.data();
+            try {
+                const htmlContent = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #667eea;">${subject}</h2>
+                        <div style="line-height: 1.6; color: #333;">
+                            ${message}
+                        </div>
+                        <hr style="margin-top: 30px; border: none; border-top: 1px solid #ddd;">
+                        <p style="font-size: 12px; color: #999;">
+                            DiamanoSN - Le Grand Bazar du Sénégal
+                        </p>
+                    </div>
+                `;
+
+                const sent = await sendEmail(subscriber.email, subject, htmlContent);
+                if (sent) sentCount++;
+                else failedCount++;
+            } catch (err) {
+                console.error('Erreur envoi email:', subscriber.email, err);
+                failedCount++;
+            }
+        }
+
+        console.log(`✅ Newsletter envoyée: ${sentCount} réussis, ${failedCount} échoués`);
+
+        res.json({
+            success: true,
+            message: `Newsletter envoyée à ${sentCount} abonnés`,
+            sent: sentCount,
+            failed: failedCount
+        });
+    } catch (error) {
+        console.error('Newsletter bulk send error:', error);
+        res.status(500).json({ success: false, error: 'Erreur lors de l\'envoi' });
+    }
+});
+
 module.exports = app;

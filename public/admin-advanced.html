@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - DiamanoSN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            overflow-x: auto;
+        }
+
+        .nav-tabs button {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-tabs button:hover {
+            background: #eee;
+            color: #667eea;
+        }
+
+        .nav-tabs button.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: white;
+        }
+
+        /* Content */
+        .content {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 2px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #3182ce;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .badge-confirmed {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-shipped {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-delivered {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-cancelled {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #f56565;
+        }
+
+        /* Search & Filter */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input,
+        .search-bar select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .nav-tabs button {
+                flex: 0 1 auto;
+                min-width: 100px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                font-size: 12px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            opacity: 0.5;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>📊 Admin Dashboard</h1>
+            <button class="logout-btn" onclick="logout()">Déconnexion</button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('orders')">📦 Commandes</button>
+            <button class="tab-btn" onclick="switchTab('newsletter')">📧 Newsletter</button>
+            <button class="tab-btn" onclick="switchTab('products')">🛍️ Produits</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Alerts -->
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <h2>Vue d'ensemble</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Commandes</h3>
+                        <div class="value" id="totalOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Revenus</h3>
+                        <div class="value" id="totalRevenue">0 FCFA</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Abonnés Newsletter</h3>
+                        <div class="value" id="totalSubscribers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Produits</h3>
+                        <div class="value" id="totalProducts">0</div>
+                    </div>
+                </div>
+
+                <h3>Commandes Récentes</h3>
+                <div id="recentOrdersContainer" class="table-container"></div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="orders" class="tab-content">
+                <h2>Gestion des Commandes</h2>
+                <div class="search-bar">
+                    <input type="text" id="orderSearch" placeholder="Chercher par ID ou email..." onkeyup="filterOrders()">
+                    <select id="orderStatusFilter" onchange="filterOrders()">
+                        <option value="">Tous les statuts</option>
+                        <option value="pending">En attente</option>
+                        <option value="confirmed">Confirmée</option>
+                        <option value="shipped">Expédiée</option>
+                        <option value="delivered">Livrée</option>
+                        <option value="cancelled">Annulée</option>
+                    </select>
+                </div>
+                <div id="ordersContainer" class="table-container"></div>
+            </div>
+
+            <!-- Newsletter Tab -->
+            <div id="newsletter" class="tab-content">
+                <h2>Gestion Newsletter</h2>
+                <button class="btn btn-primary" onclick="openSendEmailModal()">✉️ Envoyer Email</button>
+                <div id="newsletterContainer" class="table-container"></div>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="products" class="tab-content">
+                <h2>Gestion Produits</h2>
+                <button class="btn btn-primary" onclick="openProductModal()">➕ Ajouter Produit</button>
+                <div id="productsContainer" class="table-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Edit Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier Commande</h3>
+                <button class="close-btn" onclick="closeModal('orderModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>ID Commande</label>
+                <input type="text" id="orderIdField" disabled>
+            </div>
+            <div class="form-group">
+                <label>Statut</label>
+                <select id="orderStatusField">
+                    <option value="pending">En attente</option>
+                    <option value="confirmed">Confirmée</option>
+                    <option value="shipped">Expédiée</option>
+                    <option value="delivered">Livrée</option>
+                    <option value="cancelled">Annulée</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="orderNotesField" placeholder="Ajouter une note..."></textarea>
+            </div>
+            <button class="btn btn-success" onclick="saveOrder()">💾 Enregistrer</button>
+        </div>
+    </div>
+
+    <!-- Send Email Modal -->
+    <div id="emailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Envoyer Email Newsletter</h3>
+                <button class="close-btn" onclick="closeModal('emailModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Objet</label>
+                <input type="text" id="emailSubject" placeholder="Objet du message...">
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea id="emailMessage" placeholder="Votre message..."></textarea>
+            </div>
+            <button class="btn btn-success" onclick="sendNewsletterEmail()">📧 Envoyer</button>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ajouter/Modifier Produit</h3>
+                <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Nom du Produit</label>
+                <input type="text" id="productName" placeholder="Ex: Boubou Sénégalais...">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="productDescription" placeholder="Description..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Prix (FCFA)</label>
+                <input type="number" id="productPrice" placeholder="10000">
+            </div>
+            <div class="form-group">
+                <label>Stock</label>
+                <input type="number" id="productStock" placeholder="10">
+            </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" id="productImage" placeholder="https://...">
+            </div>
+            <button class="btn btn-success" onclick="saveProduct()">💾 Enregistrer</button>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl7L_kB_AqUJvG2aQTXJ4RRJjAA9U0TaA",
+            authDomain: "diamanosn-ea0a1.firebaseapp.com",
+            projectId: "diamanosn-ea0a1",
+            storageBucket: "diamanosn-ea0a1.appspot.com",
+            messagingSenderId: "918076707387",
+            appId: "1:918076707387:web:dac8ce0fbc5d90f80f5c05"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        let currentUser = null;
+        let currentOrderId = null;
+        let allOrders = [];
+        let allProducts = [];
+
+        // Initialize
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = '/index.html';
+            } else {
+                currentUser = user;
+                loadDashboard();
+            }
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'orders') loadOrders();
+            if (tabName === 'newsletter') loadNewsletter();
+            if (tabName === 'products') loadProducts();
+        }
+
+        // Load Dashboard
+        async function loadDashboard() {
+            try {
+                // Total Orders
+                const ordersSnap = await db.collection('orders').get();
+                document.getElementById('totalOrders').textContent = ordersSnap.size;
+
+                // Total Revenue
+                let revenue = 0;
+                let recentOrders = [];
+                ordersSnap.forEach(doc => {
+                    revenue += doc.data().totalPrice || 0;
+                    recentOrders.push({id: doc.id, ...doc.data()});
+                });
+                document.getElementById('totalRevenue').textContent = revenue.toLocaleString() + ' FCFA';
+
+                // Total Subscribers
+                const subSnap = await db.collection('newsletter_subscribers').get();
+                document.getElementById('totalSubscribers').textContent = subSnap.size;
+
+                // Total Products
+                const prodSnap = await db.collection('products').get();
+                document.getElementById('totalProducts').textContent = prodSnap.size;
+
+                // Recent Orders
+                recentOrders.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                const recent = recentOrders.slice(0, 5);
+                displayRecentOrders(recent);
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        function displayRecentOrders(orders) {
+            if (orders.length === 0) {
+                document.getElementById('recentOrdersContainer').innerHTML = '<div class="empty-state">Aucune commande</div>';
+                return;
+            }
+
+            let html = '<table><tr><th>ID</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th></tr>';
+            orders.forEach(order => {
+                const date = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString('fr') : '-';
+                html += `<tr>
+                    <td>${order.id.substring(0, 8)}</td>
+                    <td>${order.userEmail || 'N/A'}</td>
+                    <td>${order.totalPrice} FCFA</td>
+                    <td><span class="badge badge-${order.status || 'pending'}">${getStatusLabel(order.status)}</span></td>
+                    <td>${date}</td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('recentOrdersContainer').innerHTML = html;
+        }
+
+        // Load Orders
+        async function loadOrders() {
+            try {
+                const snap = await db.collection('orders').get();
+                allOrders = [];
+                snap.forEach(doc => {
+                    allOrders.push({id: doc.id, ...doc.data()});
+                });
+                filterOrders();
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        function filterOrders() {
+            const search = document.getElementById('orderSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('orderStatusFilter').value;
+
+            let filtered = allOrders.filter(order => {
+                const matchSearch = !search || order.id.includes(search) || (order.userEmail && order.userEmail.toLowerCase().includes(search));
+                const matchStatus = !statusFilter || order.status === statusFilter;
+                return matchSearch && matchStatus;
+            });
+
+            displayOrders(filtered);
+        }
+
+        function displayOrders(orders) {
+            if (orders.length === 0) {
+                document.getElementById('ordersContainer').innerHTML = '<div class="empty-state">Aucune commande trouvée</div>';
+                return;
+            }
+
+            let html = '<table><tr><th>ID</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th><th>Actions</th></tr>';
+            orders.forEach(order => {
+                const date = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString('fr') : '-';
+                html += `<tr>
+                    <td>${order.id.substring(0, 8)}</td>
+                    <td>${order.userEmail || 'N/A'}</td>
+                    <td>${order.totalPrice} FCFA</td>
+                    <td><span class="badge badge-${order.status || 'pending'}">${getStatusLabel(order.status)}</span></td>
+                    <td>${date}</td>
+                    <td><button class="btn btn-info" onclick="editOrder('${order.id}', '${order.status}', '${(order.notes || '').replace(/"/g, '&quot;')}')">✏️ Modifier</button></td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('ordersContainer').innerHTML = html;
+        }
+
+        function editOrder(id, status, notes) {
+            currentOrderId = id;
+            document.getElementById('orderIdField').value = id;
+            document.getElementById('orderStatusField').value = status;
+            document.getElementById('orderNotesField').value = notes;
+            openModal('orderModal');
+        }
+
+        async function saveOrder() {
+            try {
+                await db.collection('orders').doc(currentOrderId).update({
+                    status: document.getElementById('orderStatusField').value,
+                    notes: document.getElementById('orderNotesField').value,
+                    updatedAt: new Date()
+                });
+                showSuccess('Commande mise à jour!');
+                closeModal('orderModal');
+                loadOrders();
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        // Load Newsletter
+        async function loadNewsletter() {
+            try {
+                const snap = await db.collection('newsletter_subscribers').get();
+                if (snap.empty) {
+                    document.getElementById('newsletterContainer').innerHTML = '<div class="empty-state">Aucun abonné</div>';
+                    return;
+                }
+
+                let html = '<table><tr><th>Email</th><th>Date d\'abonnement</th></tr>';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.subscribedAt ? new Date(data.subscribedAt.seconds * 1000).toLocaleDateString('fr') : '-';
+                    html += `<tr><td>${data.email}</td><td>${date}</td></tr>`;
+                });
+                html += '</table>';
+                document.getElementById('newsletterContainer').innerHTML = html;
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        function openSendEmailModal() {
+            openModal('emailModal');
+        }
+
+        async function sendNewsletterEmail() {
+            const subject = document.getElementById('emailSubject').value;
+            const message = document.getElementById('emailMessage').value;
+
+            if (!subject || !message) {
+                showError('Remplissez tous les champs');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/newsletter/send-bulk', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({subject, message})
+                });
+
+                if (response.ok) {
+                    showSuccess('Emails envoyés!');
+                    document.getElementById('emailSubject').value = '';
+                    document.getElementById('emailMessage').value = '';
+                    closeModal('emailModal');
+                } else {
+                    showError('Erreur lors de l\'envoi');
+                }
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        // Load Products
+        async function loadProducts() {
+            try {
+                const snap = await db.collection('products').get();
+                allProducts = [];
+                snap.forEach(doc => {
+                    allProducts.push({id: doc.id, ...doc.data()});
+                });
+                displayProducts(allProducts);
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        function displayProducts(products) {
+            if (products.length === 0) {
+                document.getElementById('productsContainer').innerHTML = '<div class="empty-state">Aucun produit</div>';
+                return;
+            }
+
+            let html = '<table><tr><th>Nom</th><th>Prix</th><th>Stock</th><th>Actions</th></tr>';
+            products.forEach(product => {
+                html += `<tr>
+                    <td>${product.name}</td>
+                    <td>${product.price} FCFA</td>
+                    <td>${product.stock}</td>
+                    <td>
+                        <button class="btn btn-info" onclick="editProduct('${product.id}')">✏️ Modifier</button>
+                        <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">🗑️ Supprimer</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('productsContainer').innerHTML = html;
+        }
+
+        function openProductModal() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productStock').value = '';
+            document.getElementById('productImage').value = '';
+            openModal('productModal');
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const price = parseInt(document.getElementById('productPrice').value);
+            const stock = parseInt(document.getElementById('productStock').value);
+            const image = document.getElementById('productImage').value;
+
+            if (!name || !price || !stock) {
+                showError('Remplissez tous les champs obligatoires');
+                return;
+            }
+
+            try {
+                await db.collection('products').add({
+                    name, description, price, stock, image,
+                    createdAt: new Date()
+                });
+                showSuccess('Produit créé!');
+                closeModal('productModal');
+                loadProducts();
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Êtes-vous sûr?')) return;
+            try {
+                await db.collection('products').doc(id).delete();
+                showSuccess('Produit supprimé!');
+                loadProducts();
+            } catch (err) {
+                showError('Erreur: ' + err.message);
+            }
+        }
+
+        // Utility Functions
+        function getStatusLabel(status) {
+            const labels = {
+                'pending': '⏳ En attente',
+                'confirmed': '✅ Confirmée',
+                'shipped': '📦 Expédiée',
+                'delivered': '✓ Livrée',
+                'cancelled': '❌ Annulée'
+            };
+            return labels[status] || status;
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function showSuccess(msg) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = msg;
+            alert.classList.add('active');
+            setTimeout(() => alert.classList.remove('active'), 3000);
+        }
+
+        function showError(msg) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = msg;
+            alert.classList.add('active');
+            setTimeout(() => alert.classList.remove('active'), 3000);
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = '/index.html';
+            });
+        }
+
+        // Close modals on outside click
+        window.onclick = (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+</html>
