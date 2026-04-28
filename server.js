@@ -81,18 +81,18 @@ if (process.env.EMAIL_SERVICE === 'brevo' && process.env.BREVO_API_KEY) {
         }
     });
     console.log('✅ Email sender (Brevo) initialized');
-} else if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+} else if (process.env.GMAIL_USER && process.env.GMAIL_PASSWORD) {
     // Configuration GMAIL (fallback)
     emailTransporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_PASSWORD
         }
     });
     console.log('✅ Email sender (Gmail) initialized');
 } else {
-    console.warn('⚠️  Email non configuré: ajoutez BREVO_API_KEY ou EMAIL_USER/EMAIL_PASSWORD dans .env');
+    console.warn('⚠️  Email non configuré: ajoutez BREVO_API_KEY ou GMAIL_USER/GMAIL_PASSWORD dans .env');
 }
 
 // Fonction pour envoyer des emails
